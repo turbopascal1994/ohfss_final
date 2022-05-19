@@ -1,17 +1,17 @@
 function [OutputSeqArray, OutputStringsArray] = ChangingOneElement(InputSequence)
 
-% Запишем и выведем входную последовательность
+% Р—Р°РїРёС€РµРј Рё РІС‹РІРµРґРµРј РІС…РѕРґРЅСѓСЋ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
 InpSeqString = '';
 CellsNumber = length(InputSequence);
 for InpSeqElement = 1:1:CellsNumber
     NewElementSeq = num2str(InputSequence(InpSeqElement));
     InpSeqString = append(InpSeqString,NewElementSeq);
 end
-% Количество возможных последовательностей
+% РљРѕР»РёС‡РµСЃС‚РІРѕ РІРѕР·РјРѕР¶РЅС‹С… РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№
 NumberOfSequences = 2*CellsNumber;
-% Массив для хранения последовательностей
+% РњР°СЃСЃРёРІ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№
 SequencesArray = zeros(NumberOfSequences,CellsNumber);
-% Массив для хранения строк
+% РњР°СЃСЃРёРІ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СЃС‚СЂРѕРє
 StringsArray = strings(NumberOfSequences,1);
 
 StartSequence = InputSequence;
