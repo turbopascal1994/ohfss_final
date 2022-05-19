@@ -5,64 +5,63 @@ NewLeak = 0;
 GoldLeak = 1;
 BestSequence = '';
 Theta = StartTheta;
-disp('Стартовая последовательность');
+disp('РЎС‚Р°СЂС‚РѕРІР°СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ');
 WriteSequence(InputString);
 while NewLeak < GoldLeak
-    GenDisp = ['Поколение N', num2str(Gen)];
+    GenDisp = ['РџРѕРєРѕР»РµРЅРёРµ N', num2str(Gen)];
     disp(GenDisp);
     if Gen > 1
         GoldLeak = NewLeak;
         InputString = BestSequence;
     end
-    % Перебираем все возможные варианты замены одного элемента на другой
+    % РџРµСЂРµР±РёСЂР°РµРј РІСЃРµ РІРѕР·РјРѕР¶РЅС‹Рµ РІР°СЂРёР°РЅС‚С‹ Р·Р°РјРµРЅС‹ РѕРґРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РЅР° РґСЂСѓРіРѕР№
     [SequencesArray, ~] = ChangingOneElement(InputString);
     [SequencesNumber,CellsNumber] = size(SequencesArray);
-    FArray = zeros(SequencesNumber,1); % Массив для хранения F
-    AnglesArray = zeros(SequencesNumber,1); % Массив для хранения углов
-    %parfor j = 1:1:SequencesNumber
-    for j = 1:1:SequencesNumber
+    FArray = zeros(SequencesNumber,1); % РњР°СЃСЃРёРІ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ F
+    AnglesArray = zeros(SequencesNumber,1); % РњР°СЃСЃРёРІ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СѓРіР»РѕРІ
+    parfor j = 1:1:SequencesNumber
         SignalString = SequencesArray(j,:); 
-        % Оптимизируем угол
+        % РћРїС‚РёРјРёР·РёСЂСѓРµРј СѓРіРѕР»
         OptimizedTheta = ...
             NewThetaOptimizer(w01, w12, w, T, tstep,...
             SignalString, Theta);
         AnglesArray(j) = OptimizedTheta;
-        disp(['Последовательность N',num2str(j),' из ', num2str(SequencesNumber)]);
-        % Cчитаем Fidelity
+  	disp(['РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ N',num2str(j),' РёР· ', num2str(SequencesNumber)]);
+        % CС‡РёС‚Р°РµРј Fidelity
         FArray(j) = ...
             Fidelity(w01, w12, w, T, tstep,...
             SignalString, OptimizedTheta);
     end
-    % Найдём минимум среди "удачных последовательностей
+    % РќР°Р№РґС‘Рј РјРёРЅРёРјСѓРј СЃСЂРµРґРё "СѓРґР°С‡РЅС‹С… РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№
     [MinLeak, MinLeakN] = min(FArray);
     BestSequence = SequencesArray(MinLeakN,:);
     BestAngle = AnglesArray(MinLeakN,:);
     BestString = '';
-    % Запишем лучшую последовательность
+    % Р—Р°РїРёС€РµРј Р»СѓС‡С€СѓСЋ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
     for BestSeqElement = 1:1:CellsNumber
         NewElementSeq = num2str(BestSequence(BestSeqElement));
         BestString = append(BestString,NewElementSeq);
     end
-    ResultDisp1 = append('Минимальная утечка у последовательности ', BestString);
+    ResultDisp1 = append('РњРёРЅРёРјР°Р»СЊРЅР°СЏ СѓС‚РµС‡РєР° Сѓ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё ', BestString);
     disp(ResultDisp1);
     ResultDisp2 = append('F = ', num2str(MinLeak));
     disp(ResultDisp2);
-    ResultDisp3 = append('Угол Th = ', num2str(BestAngle));
+    ResultDisp3 = append('РЈРіРѕР» Th = ', num2str(BestAngle));
     disp(ResultDisp3);
     NewLeak = MinLeak;
     if NewLeak < GoldLeak
-        % Если на нынешнем поколении результат лучше, чем на предыдущем,
-        % то запишем его
+        % Р•СЃР»Рё РЅР° РЅС‹РЅРµС€РЅРµРј РїРѕРєРѕР»РµРЅРёРё СЂРµР·СѓР»СЊС‚Р°С‚ Р»СѓС‡С€Рµ, С‡РµРј РЅР° РїСЂРµРґС‹РґСѓС‰РµРј,
+        % С‚Рѕ Р·Р°РїРёС€РµРј РµРіРѕ
         BestLeakOverall = MinLeak;
         BestSequenceOverall = SequencesArray(MinLeakN,:);
         BestAngleOverall = AnglesArray(MinLeakN,:);
     end
     Gen = Gen + 1;
 end
-disp(['Поиск занял ', num2str(Gen - 1), ' поколений']);
-disp('Самая лучшая последовательность');
+disp(['РџРѕРёСЃРє Р·Р°РЅСЏР» ', num2str(Gen - 1), ' РїРѕРєРѕР»РµРЅРёР№']);
+disp('РЎР°РјР°СЏ Р»СѓС‡С€Р°СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ');
 WriteSequence(BestSequenceOverall);
 FinalDisp1 = append('F = ', num2str(BestLeakOverall));
 disp(FinalDisp1);
-FinalDisp2 = append('Угол Th = ', num2str(BestAngleOverall));
+FinalDisp2 = append('РЈРіРѕР» Th = ', num2str(BestAngleOverall));
 disp(FinalDisp2);
