@@ -1,5 +1,3 @@
-optimization algorithm for single qubit gates using RSFQ pulses
-
 Алгоритм:
 
 main — файл запуска
