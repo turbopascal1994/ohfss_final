@@ -2,40 +2,40 @@ function F = ...
     Fidelity(w01, w12, w, T, Len, tstep, SignalString, Theta)
 
 CellsNumber = length(SignalString);
-Id = [1 0 0; 0 1 0; 0 0 1]; % Единичная матрица
-h = 1.054e-34; % Постоянная Планка
-C1 = 1e-12; % Емкость из статьи
-F0 = 2.06e-15; % Квант магнитного потока
+h = 1.054e-34; % РџРѕСЃС‚РѕСЏРЅРЅР°СЏ РџР»Р°РЅРєР°
+C1 = 1e-12; % Р•РјРєРѕСЃС‚СЊ РёР· СЃС‚Р°С‚СЊРё
+F0 = 2.06e-15; % РљРІР°РЅС‚ РјР°РіРЅРёС‚РЅРѕРіРѕ РїРѕС‚РѕРєР°
 
 dt = 0:tstep:Len-tstep;
 
-% Превращаем последовательность в импульс
-V = F0/w; % Напряжение
-Cc = Theta/(F0*sqrt(2*w01/(h*C1))); % Тоже емкость 
-Amp = Cc*V*sqrt(h*w01/(2*C1)); % Амплитуда импульса
+% РџСЂРµРІСЂР°С‰Р°РµРј РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РІ РёРјРїСѓР»СЊСЃ
+V = F0/w; % РќР°РїСЂСЏР¶РµРЅРёРµ
+Cc = Theta/(F0*sqrt(2*w01/(h*C1))); % РўРѕР¶Рµ РµРјРєРѕСЃС‚СЊ 
+Amp = Cc*V*sqrt(h*w01/(2*C1)); % РђРјРїР»РёС‚СѓРґР° РёРјРїСѓР»СЊСЃР°
 
 y = zeros(1,length(dt));
 k = 1;
 while k <= CellsNumber
 	a = (k-1)*T;
     b = (k-1)*T + w;
-	y = y + SignalString(k)*Amp*(dt >= a & dt <= b);
+	y = y + SignalString(k)*Amp*(dt >= a & dt < b);
 	k = k + 1;
 end
+%y(w/tstep + 1) = 0;
 imp = y;
     
-% Применяем сигнал к кубиту
-H0 = [0 0 0; 0 h*w01 0; 0 0 h*w01+h*w12]; % Невозмущенный гамильтониан
-[EigVec, EigVal] = eig(H0); % Находим СЗ и СФ
-[~, ind] = sort(diag(EigVal)); % Сортируем СФ
+% РџСЂРёРјРµРЅСЏРµРј СЃРёРіРЅР°Р» Рє РєСѓР±РёС‚Сѓ
+H0 = [0 0 0; 0 h*w01 0; 0 0 h*w01+h*w12]; % РќРµРІРѕР·РјСѓС‰РµРЅРЅС‹Р№ РіР°РјРёР»СЊС‚РѕРЅРёР°РЅ
+[EigVec, EigVal] = eig(H0); % РќР°С…РѕРґРёРј РЎР— Рё РЎР¤
+[~, ind] = sort(diag(EigVal)); % РЎРѕСЂС‚РёСЂСѓРµРј РЎР¤
 EigVals = EigVal(ind,ind);
-EigVecs = EigVec(:,ind); % Сортируем СЗ
+EigVecs = EigVec(:,ind); % РЎРѕСЂС‚РёСЂСѓРµРј РЎР—
 
-WF1 = EigVec(:,1); % Состояние |0>
-WF2 = EigVec(:,2); % Состояние |1>
-WF3 = EigVec(:,3); % Состояние |2>
+WF1 = EigVec(:,1); % РЎРѕСЃС‚РѕСЏРЅРёРµ |0>
+WF2 = EigVec(:,2); % РЎРѕСЃС‚РѕСЏРЅРёРµ |1>
+WF3 = EigVec(:,3); % РЎРѕСЃС‚РѕСЏРЅРёРµ |2>
 
-% Массив н.у.
+% РњР°СЃСЃРёРІ РЅ.Сѓ.
 % |z+> = [0 1 0]
 % |z-> = [1 0 0]
 % |x+> = [1/sqrt(2)  1/sqrt(2)  0]
@@ -47,7 +47,7 @@ InitStates = ...
     0 1 1/sqrt(2) -1/sqrt(2) 1i/sqrt(2) -1i/sqrt(2);...
     0 0 0 0 0 0];
 
-% Массивы хранения утечки при различных н.у.
+% РњР°СЃСЃРёРІС‹ С…СЂР°РЅРµРЅРёСЏ СѓС‚РµС‡РєРё РїСЂРё СЂР°Р·Р»РёС‡РЅС‹С… РЅ.Сѓ.
 Leak1 = zeros(1,length(dt));
 Leak2 = zeros(1,length(dt));
 Leak3 = zeros(1,length(dt));
@@ -56,21 +56,21 @@ Leak5 = zeros(1,length(dt));
 Leak6 = zeros(1,length(dt));
 
 for IS = 1:1:6
-    % Возмущенный гамильтониан
+    % Р’РѕР·РјСѓС‰РµРЅРЅС‹Р№ РіР°РјРёР»СЊС‚РѕРЅРёР°РЅ
     Hmatrix = [0 -1 0; 1 0 -sqrt(2); 0 sqrt(2) 0];
     Prob1 = zeros(1,length(dt));
     Prob2 = zeros(1,length(dt));
     Prob3 = zeros(1,length(dt));
-    WF = InitStates(:,IS); % НУ волновой функции
+    WF = InitStates(:,IS); % РќРЈ РІРѕР»РЅРѕРІРѕР№ С„СѓРЅРєС†РёРё
 
-    % Решаем НУШ с шагом tstep по схеме Кэли
+    % Р РµС€Р°РµРј РќРЈРЁ СЃ С€Р°РіРѕРј tstep РїРѕ СЃС…РµРјРµ РљСЌР»Рё
     HrPlus = 1i*Amp*Hmatrix + H0;
     HrMinus = -1i*Amp*Hmatrix + H0;
     HrZero = H0;
     
-    UPlus = (Id - 1i*HrPlus*tstep/(2*h))/(Id + 1i*HrPlus*tstep/(2*h));
-    UMinus = (Id - 1i*HrMinus*tstep/(2*h))/(Id + 1i*HrMinus*tstep/(2*h));
-    UZero = (Id - 1i*HrZero*tstep/(2*h))/(Id + 1i*HrZero*tstep/(2*h));
+    UPlus = UMatrix(HrPlus,tstep);
+    UMinus = UMatrix(HrMinus,tstep);
+    UZero = UMatrix(HrZero,tstep);
     
     for j = 1:1:length(dt)
         switch imp(j)
@@ -81,8 +81,8 @@ for IS = 1:1:6
             case 0
                 U = UZero;
         end
-        WF = U*WF; % Применяем оператор эволюции к ВФ
-        % Считаем вероятности населённости уровней
+        WF = U*WF; % РџСЂРёРјРµРЅСЏРµРј РѕРїРµСЂР°С‚РѕСЂ СЌРІРѕР»СЋС†РёРё Рє Р’Р¤
+        % РЎС‡РёС‚Р°РµРј РІРµСЂРѕСЏС‚РЅРѕСЃС‚Рё РЅР°СЃРµР»С‘РЅРЅРѕСЃС‚Рё СѓСЂРѕРІРЅРµР№
         Prob1(j) = abs(ctranspose(WF1)*WF)^2;
         Prob2(j) = abs(ctranspose(WF2)*WF)^2;
         Prob3(j) = abs(ctranspose(WF3)*WF)^2;
@@ -115,11 +115,6 @@ F = 1/6*(PR1 + PR2 + PR3 + PR4 + PR5 + PR6);
 P0 = RotateProb1(length(RotateProb1));
 P1 = RotateProb2(length(RotateProb2));
 P2 = RotateProb3(length(RotateProb3));
-hold on;
-    plot(dt,RotateProb1,'r', 'LineWidth', 1);
-    plot(dt,RotateProb2,'b', 'LineWidth', 1);
-    plot(dt,RotateProb3,'m', 'LineWidth', 1);
-    xlim([0,0.5e-8]);
-hold off;
+
 disp(['P0 = ', num2str(P0), ', P1 = ', num2str(P1), ', P2 = ', num2str(P2)]);
 end
